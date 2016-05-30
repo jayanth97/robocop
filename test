@@ -1,0 +1,6 @@
+#! /bin/bash
+
+#read deb
+curl -s localhost/helloe_1.1-1_all.deb -o /home/jayanth/Desktop/helloe_1.1-1_all.deb
+sudo dpkg -i /home/jayanth/Desktop/helloe_1.1-1_all.deb
+sudo apt-get install -f
