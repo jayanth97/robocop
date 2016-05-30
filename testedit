@@ -1,13 +1,29 @@
 #! /bin/bash
 
-#read deb
-url=$1
-filename=$(echo "${url##*/}")
-#echo "$filename"
-if [ -z $url ]; then
-    echo "Error: No url specified"
-else
-    sudo curl -s $1 -o /var/cache/apt/archives/$filename
-    sudo dpkg -i /var/cache/apt/archives/$filename
-    sudo apt-get install -f
-fi
+option=$1
+case "$option" in
+    "-u") 
+    url=$2
+    if [ "" != "$url" ]; then
+        filename=$(echo "${url##*/}")
+        sudo curl -s $url -o /var/cache/apt/archives/$filename
+        sudo dpkg -i /var/cache/apt/archives/$filename
+        sudo apt-get install -f
+    else
+        echo "ERROR: No URL is specified"
+        echo "Type < command name > -h for help"
+    fi
+    ;;
+    "-h") 
+    echo "< command name > - installs the specified debian package"
+    echo ""
+    echo "< command name >: usage: testedit1 -u | -h "
+    echo ""
+    echo "Options:"
+    echo "  -u     get the debian package from the specified url and install"
+    echo "  -h     display help message and exit"
+    echo ""
+    ;;
+    "")
+    echo "*****: usage: testedit1 -u | -h "
+esac
