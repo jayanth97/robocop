@@ -1,0 +1,13 @@
+#! /bin/bash
+
+#read deb
+url=$1
+filename=$(echo "${url##*/}")
+#echo "$filename"
+if [ -z $url ]; then
+    echo "Error: No url specified"
+else
+    sudo curl -s $1 -o /var/cache/apt/archives/$filename
+    sudo dpkg -i /var/cache/apt/archives/$filename
+    sudo apt-get install -f
+fi
