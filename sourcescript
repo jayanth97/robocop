@@ -1,0 +1,67 @@
+#! /bin/bash
+
+if [ "$1" = "-p" ]; then 
+    if [ "" != "$2" ]; then
+        path=$2
+    else
+        echo "ERROR: option -p requires path argument"
+        echo "Type <commandname> -h for help"
+        exit 1
+    fi
+elif [ "$1" = "-h" ]; then
+    echo "Usage: <command name> <option1> <argument 1>"
+    echo "Options :"
+    echo "  -p    : path to the source file"
+    exit 0
+else
+    echo "ERROR: invalid option type -h for help"
+    exit 1
+fi
+
+if [ "$3" = "-c" ]; then 
+    if [ "" != "$4" ]; then
+        context=$4
+        if [ "$context" != "stable" ] && [ "$context" != "unstable" ] && [ "$context" != "testing" ]; then
+            echo "ERROR: Invalid context"
+            echo "try -c stable | unstable | testing"
+            exit 1
+        fi
+    else
+        echo "ERROR: option -c requires context argument"
+        exit 1
+    fi
+else
+    echo "ERROR: invalid option type -h for help"
+    exit 1
+fi
+
+tar xvzf $path
+
+## suppose the path is /home/jayanth/Desktop/nginx-1.6.2.tar.gz
+#  then topath = /home/jayanth/Desktop/nginx-1.6.2.tar
+
+topath=$( echo ${path%.*} )
+
+
+## then finaltopath = /home/jayanth/Desktop/nginx-1.6.2
+
+finaltopath=$( echo ${topath%.*} )
+
+
+## then filename = nginx-1.6.2
+
+filename=$( echo ${finaltopath##*/})
+
+
+## then packagename = nginx
+
+packagename=$( echo ${filename%-*})
+
+
+cd $finaltopath
+./configure
+make
+echo -ne '\n' | sudo checkinstall -D --install=no
+file=$( ls | grep "deb" )
+confgfile=$(head -n 1 /home/jayanth/Desktop/link.txt)
+s3cmd -P put ./$file $confgfile/$context/
