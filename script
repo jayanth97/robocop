@@ -1,0 +1,26 @@
+#! /bin/bash
+
+function create_debian {
+    dir=$( echo ${path%/*} )
+    cd $dir
+    dpkg-deb --build $filename
+    mv $filename.deb $finalname.deb
+    s3cmd -P put $dir/$finalname.deb s3://repository.kenalyse.io/my-repository/testing/
+}
+
+#main
+path=$1
+filename=$( echo ${path##*/} )
+packagename=$2
+versionnumber=$3
+architecture=$4
+finalname=$( echo $packagename'_'$versionnumber'_'$architecture )
+extension=${filename##*.}
+if [ "$extension" = 'deb' ]; then
+    s3cmd -P put $path s3://repository.kenalyse.io/my-repository/testing/    
+elif [ -d "$path" ]; then
+    create_debian
+else
+    echo "Given path is not a directory nor a debian file"
+fi
+
