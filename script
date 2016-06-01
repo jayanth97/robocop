@@ -4,23 +4,53 @@ function create_debian {
     dir=$( echo ${path%/*} )
     cd $dir
     dpkg-deb --build $filename
-    mv $filename.deb $finalname.deb
-    s3cmd -P put $dir/$finalname.deb s3://repository.kenalyse.io/my-repository/testing/
+    s3cmd -P put $dir/$filename.deb $line/$context/
 }
 
+
 #main
-path=$1
+if [ "$1" = "-p" ]; then 
+    if [ "" != "$2" ]; then
+        path=$2
+    else
+        echo "ERROR: option -p requires path argument"
+        exit 1
+    fi
+else
+    echo "ERROR: invalid option type -h for help"
+    exit 1
+fi
+
+if [ "$3" = "-c" ]; then 
+    if [ "" != "$4" ]; then
+        context=$4
+        if [ ["$context" != "stable"] || ["$context" != "unstable"] || ["$context" != "testing"] ]; then
+            echo "ERROR: Invalid context"
+            echo "try -c stable | unstable | testing"
+            exit 1
+    else
+        echo "ERROR: option -c requires context argument"
+        exit 1
+    fi
+elif [ "$1" = "-h" ]; then
+    echo "Usage: <command name> <option1> <argument 1> <option2> <argument 2>"
+    echo "Options :"
+    echo "  -p    : path to the debian package or path to the source directory"
+    echo "  -c    : where under the repository you want to place the package "
+else
+    echo "ERROR: invalid option type -h for help"
+    exit 1
+fi
+
 filename=$( echo ${path##*/} )
-packagename=$2
-versionnumber=$3
-architecture=$4
-finalname=$( echo $packagename'_'$versionnumber'_'$architecture )
 extension=${filename##*.}
+
 if [ "$extension" = 'deb' ]; then
-    s3cmd -P put $path s3://repository.kenalyse.io/my-repository/testing/    
+    cd /home/jayanth/Desktop/
+    line=$(head -n 1 link.txt)
+    s3cmd -P put $path $line/$context/
 elif [ -d "$path" ]; then
     create_debian
 else
     echo "Given path is not a directory nor a debian file"
 fi
-
