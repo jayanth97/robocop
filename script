@@ -31,7 +31,7 @@ fi
 if [ "$3" = "-c" ]; then 
     if [ "" != "$4" ]; then
         context=$4
-        if [ "$context" != "stable" ] || [ "$context" != "unstable" ] || [ "$context" != "testing" ]; then
+        if [ "$context" != "stable" ] && [ "$context" != "unstable" ] && [ "$context" != "testing" ]; then
             echo "ERROR: Invalid context"
             echo "try -c stable | unstable | testing"
             exit 1
